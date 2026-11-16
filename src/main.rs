@@ -1,5 +1,8 @@
 use image::{self, DynamicImage, GenericImageView, RgbImage};
+use std::fs::{self, File};
 use std::{path::Path};
+
+use std::io::BufReader;
 
 
 fn resize(data_length: usize) -> image::RgbImage
@@ -17,12 +20,16 @@ fn encode(bytes: &Vec<u8>) -> RgbImage
 {
     let mut img = resize(bytes.len());
 
+    let header_signature = format!("{}\0", bytes.len());
+
+
     for idx in 0..bytes.len()
     {
         let pixel_r = (idx/3) as u32 / img.height();
         let pixel_c = (idx/3) as u32 % img.width();
 
         let mut rgb_color = img.get_pixel(pixel_c  ,pixel_r).0;
+
 
         rgb_color[idx%3] ^= bytes[idx];
 
@@ -60,6 +67,11 @@ fn decode(path: &Path) -> Vec<u8>
 fn main() {
     
     let DATA = "Hello World!".bytes().collect::<Vec<u8>>();
+
+    let test = fs::read("output2.png").unwrap();
+
+    println!("{:?}", test);
+
 
     println!("{:?}", &DATA);
 
